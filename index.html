@@ -130,15 +130,17 @@
       // Direct core target location mapping domain configuration
       var targetDestinationUrl = "https://www.gifpresents.com";
 
-      var ua = navigator.userAgent || navigator.vendor || "";
+      var ua = (navigator.userAgent || navigator.vendor || "").toLowerCase();
       
-      // Pinpoint targeting logic adjustments: Only captures iOS profiles trapped inside in-app frameworks
-      var isIOS = /iPad|iPhone|iPod/.test(navigator.platform) || 
-                  (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
+      // Pinpoint targeting logic adjustments: Identifies iOS platforms reliably
+      var isIOS = /ipad|iphone|ipod/.test(navigator.platform.toLowerCase()) || 
+                  (/macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
                   
-      var isInAppBrowser = (ua.indexOf("FBAN") > -1) || 
-                           (ua.indexOf("FBAV") > -1) || 
-                           (ua.indexOf("Instagram") > -1);
+      // Enhanced Sniffing Structure: Checks app tokens AND fallback webkit message handling signatures
+      var isInAppBrowser = (ua.indexOf("fban") > -1) || 
+                           (ua.indexOf("fbav") > -1) || 
+                           (ua.indexOf("instagram") > -1) ||
+                           (window.webkit && window.webkit.messageHandlers);
 
       if (isIOS && isInAppBrowser) {
         // Halt loading and show the clean customized layout sheet
