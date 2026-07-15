@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gorana Independent Films</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #121212;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #e0e0e0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Fullscreen Escape Intercept Overlay Layout */
+    #in-app-banner {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(18, 18, 18, 0.98);
+      z-index: 999999;
+      box-sizing: border-box;
+      padding: 40px 24px;
+      text-align: center;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .instruction-card {
+      max-width: 400px;
+      background: #1c1c1c;
+      border: 1px solid #2d2d2d;
+      border-radius: 16px;
+      padding: 32px 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .icon-alert {
+      font-size: 3.5rem;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    h2 {
+      color: #ffb300;
+      font-size: 1.4rem;
+      margin: 0 0 16px 0;
+      letter-spacing: 0.5px;
+    }
+
+    p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #b0b0b0;
+      margin: 0 0 24px 0;
+    }
+
+    .highlight-action {
+      font-weight: bold;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Loading Spinner if redirecting normally */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255,179,0,0.1);
+      border-top: 4px solid #ffb300;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fallback Loader for Standard Safe Browsers -->
+  <div id="loader-view">
+    <div class="spinner"></div>
+    <p style="margin-top: 16px; font-size: 0.85rem; color: #7f7f7f; letter-spacing: 1px; text-transform: uppercase;">Loading Portfolio...</p>
+  </div>
+
+  <!-- The Industry-Standard Intermediary Escape Overlay Banner -->
+  <div id="in-app-banner">
+    <div class="instruction-card">
+      <span class="icon-alert">🧭</span>
+      <h2>Open in Native Browser</h2>
+      <p>This cinematic portfolio works best inside native web engines. Tap the <span class="highlight-action">three dots (···)</span> or the <span class="highlight-action">Compass 🧭</span> icon in the corner and choose <span class="highlight-action">Open in Browser</span>.</p>
+    </div>
+  </div>
+
+  <script>
+    (function manageBridgeRouting() {
+      // REPLACE THIS TARGET URL with your direct Google Sites domain link or raw deployment execution URL
+      var targetDestinationUrl = "https://www.gifpresents.com";
+
+      var ua = navigator.userAgent || navigator.vendor || window.opera;
+      
+      // Strict environment signature checks matching your screenshot
+      var isInAppBrowser = (ua.indexOf("FBAN") > -1) || 
+                           (ua.indexOf("FBAV") > -1) || 
+                           (ua.indexOf("Instagram") > -1);
+
+      if (isInAppBrowser) {
+        // Halt processing thread and drop the beautiful visual guide overlay container
+        document.getElementById("loader-view").style.display = "none";
+        document.getElementById("in-app-banner").style.display = "flex";
+      } else {
+        // Safe context confirmed - break out straight into the workspace site setup instantly
+        window.location.replace(targetDestinationUrl);
+      }
+    })();
+  </script>
+</body>
+</html>
