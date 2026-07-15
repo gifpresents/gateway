@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Gorana Independent Films</title>
   <style>
-    /* Font Declarations matching your main workspace typography rules */
     @font-face {
       font-family: 'Kyok Light';
       src: local('Kyok Light'), local('Kyok-Light');
@@ -60,13 +59,12 @@
       align-items: center;
     }
 
-    /* Brand Logo Graphic Layout Wrapper Node */
     .brand-logo-img {
       width: 64px;
       height: 64px;
       object-fit: contain;
       margin-bottom: 20px;
-      border-radius: 50%; /* Smooth circle shape matching modern app icons */
+      border-radius: 50%;
       border: 1px solid #2d2d2d;
     }
 
@@ -87,7 +85,6 @@
       margin: 0 0 32px 0;
     }
 
-    /* Sleek direct navigation escape action button */
     .action-button {
       display: block;
       width: 80%;
@@ -136,12 +133,9 @@
 
   <div id="in-app-banner">
     <div class="instruction-card">
-      <!-- BRAND LOGO ELEMENT: Links to your high-res avatar thumbnail file -->
       <img src="https://www.gifpresents.com/favicon.ico" onerror="this.src='https://lh3.googleusercontent.com/d/1_x-zP9m-kF3W';" class="brand-logo-img" alt="GIF Logo">
-      
       <h2>Welcome to GIF</h2>
       <p>We would look best in your Safari</p>
-      
       <a href="x-web-search://www.gifpresents.com" class="action-button">Continue...</a>
     </div>
   </div>
@@ -149,8 +143,18 @@
   <script>
     (function manageBridgeRouting() {
       var targetDestinationUrl = "https://www.gifpresents.com";
-      var ua = (navigator.userAgent || navigator.vendor || "").toLowerCase();
       
+      // Check if "?preview=true" is manually typed in the desktop browser address bar
+      var isPreviewMode = window.location.search.indexOf("preview=true") > -1;
+
+      if (isPreviewMode) {
+        // Force display the UI overlay immediately on desktop for testing
+        document.getElementById("loader-view").style.display = "none";
+        document.getElementById("in-app-banner").style.display = "flex";
+        return; // Stop right here so it doesn't redirect you
+      }
+
+      var ua = (navigator.userAgent || navigator.vendor || "").toLowerCase();
       var isIOS = /ipad|iphone|ipod/.test(navigator.platform.toLowerCase()) || 
                   (/macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
                   
