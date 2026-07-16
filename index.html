@@ -102,7 +102,6 @@
       text-align: center;
       text-transform: uppercase;
       letter-spacing: 2px;
-      margin-bottom: 12px;
       transition: background-color 0.2s ease, transform 0.2s ease;
       box-shadow: 0 4px 15px rgba(255, 179, 0, 0.2);
       box-sizing: border-box;
@@ -111,29 +110,6 @@
     .action-button:active {
       background-color: #ffa000;
       transform: scale(0.98);
-    }
-
-    .copy-button {
-      display: block;
-      width: 85%;
-      background-color: transparent;
-      color: #7f7f7f;
-      border: 1px dashed #444;
-      padding: 12px 24px;
-      font-family: "Kyok Light", -apple-system, sans-serif;
-      font-size: 0.8rem;
-      border-radius: 30px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      box-sizing: border-box;
-      transition: all 0.2s ease;
-    }
-
-    .copy-button.copied {
-      border-color: #ffb300;
-      color: #ffb300;
-      background-color: rgba(255, 179, 0, 0.05);
     }
 
     .spinner {
@@ -163,51 +139,32 @@
       <h2>Welcome to GIF</h2>
       <p>We would look best in your Safari</p>
       
-      <!-- Change: This is now a true <button> with a JS click handler -->
       <button class="action-button" onclick="triggerBreakout()">Continue...</button>
-      
-      <button class="copy-button" id="copyBtn" onclick="copyToClipboard()">Copy Website Link</button>
     </div>
   </div>
 
   <script>
-    // Master JavaScript Cascading Breakout Engine (Combines A, C, & D)
+    // Master JavaScript Cascading Breakout Engine (Updated)
     function triggerBreakout() {
-      var targetDomain = "www.gifpresents.com";
+      var targetUrl = "https://www.gifpresents.com";
 
-      // 1. Try the corrected Safari search query trick immediately (from Image C & A)
-      window.location.href = "x-web-search://?" + targetDomain;
+      // 1. Force the Safari search scheme with full https:// protocol to trigger auto-navigation
+      window.location.href = "x-web-search://?" + targetUrl;
 
-      // 2. Try exclusive Safari direct scheme after 100ms (from Image A)
+      // 2. Try exclusive Safari direct scheme after 100ms
       setTimeout(function() {
-        window.location.href = "x-safari-https://" + targetDomain;
+        window.location.href = "x-safari-" + targetUrl;
       }, 100);
 
-      // 3. Try Apple's tab scheme after 300ms (from Image A)
+      // 3. Try Apple's tab scheme after 300ms
       setTimeout(function() {
-        window.location.href = "com-apple-mobilesafari-tab:https://" + targetDomain;
+        window.location.href = "com-apple-mobilesafari-tab:" + targetUrl;
       }, 300);
 
-      // 4. Try Google Chrome's iOS scheme after 500ms (from Image D)
+      // 4. Try Google Chrome's iOS scheme after 500ms
       setTimeout(function() {
-        window.location.href = "googlechromes://" + targetDomain;
+        window.location.href = "googlechromes://www.gifpresents.com";
       }, 500);
-    }
-
-    function copyToClipboard() {
-      var siteUrl = "https://www.gifpresents.com";
-      navigator.clipboard.writeText(siteUrl).then(function() {
-        var copyBtn = document.getElementById("copyBtn");
-        copyBtn.innerText = "Copied! Paste in Safari";
-        copyBtn.classList.add("copied");
-        
-        setTimeout(function() {
-          copyBtn.innerText = "Copy Website Link";
-          copyBtn.classList.remove("copied");
-        }, 4000);
-      }).catch(function(err) {
-        console.error("Clipboard copy failed: ", err);
-      });
     }
 
     (function manageBridgeRouting() {
