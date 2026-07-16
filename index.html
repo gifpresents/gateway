@@ -59,9 +59,8 @@
       align-items: center;
     }
 
-    /* Brand Logo Animating Display Vector Frame */
     .brand-logo-img {
-      width: 80px; /* Slightly scaled up to give the animation more screen presence */
+      width: 80px;
       height: 80px;
       object-fit: cover;
       margin-bottom: 24px;
@@ -87,9 +86,10 @@
       margin: 0 0 32px 0;
     }
 
+    /* JavaScript-triggered Button Style */
     .action-button {
       display: block;
-      width: 80%;
+      width: 85%;
       background-color: #ffb300;
       color: #121212;
       border: none;
@@ -99,9 +99,10 @@
       font-weight: bold;
       border-radius: 30px;
       cursor: pointer;
-      text-decoration: none;
+      text-align: center;
       text-transform: uppercase;
       letter-spacing: 2px;
+      margin-bottom: 12px;
       transition: background-color 0.2s ease, transform 0.2s ease;
       box-shadow: 0 4px 15px rgba(255, 179, 0, 0.2);
       box-sizing: border-box;
@@ -110,6 +111,29 @@
     .action-button:active {
       background-color: #ffa000;
       transform: scale(0.98);
+    }
+
+    .copy-button {
+      display: block;
+      width: 85%;
+      background-color: transparent;
+      color: #7f7f7f;
+      border: 1px dashed #444;
+      padding: 12px 24px;
+      font-family: "Kyok Light", -apple-system, sans-serif;
+      font-size: 0.8rem;
+      border-radius: 30px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+
+    .copy-button.copied {
+      border-color: #ffb300;
+      color: #ffb300;
+      background-color: rgba(255, 179, 0, 0.05);
     }
 
     .spinner {
@@ -135,18 +159,59 @@
 
   <div id="in-app-banner">
     <div class="instruction-card">
-      <!-- RELATIVE PATH ROUTING: Automatically fetches your uploaded file locally -->
       <img src="logo.gif" class="brand-logo-img" alt="GIF Animated Logo">
       <h2>Welcome to GIF</h2>
       <p>We would look best in your Safari</p>
-      <a href="x-web-search://www.gifpresents.com" class="action-button">Continue...</a>
+      
+      <!-- Change: This is now a true <button> with a JS click handler -->
+      <button class="action-button" onclick="triggerBreakout()">Continue...</button>
+      
+      <button class="copy-button" id="copyBtn" onclick="copyToClipboard()">Copy Website Link</button>
     </div>
   </div>
 
   <script>
+    // Master JavaScript Cascading Breakout Engine (Combines A, C, & D)
+    function triggerBreakout() {
+      var targetDomain = "www.gifpresents.com";
+
+      // 1. Try the corrected Safari search query trick immediately (from Image C & A)
+      window.location.href = "x-web-search://?" + targetDomain;
+
+      // 2. Try exclusive Safari direct scheme after 100ms (from Image A)
+      setTimeout(function() {
+        window.location.href = "x-safari-https://" + targetDomain;
+      }, 100);
+
+      // 3. Try Apple's tab scheme after 300ms (from Image A)
+      setTimeout(function() {
+        window.location.href = "com-apple-mobilesafari-tab:https://" + targetDomain;
+      }, 300);
+
+      // 4. Try Google Chrome's iOS scheme after 500ms (from Image D)
+      setTimeout(function() {
+        window.location.href = "googlechromes://" + targetDomain;
+      }, 500);
+    }
+
+    function copyToClipboard() {
+      var siteUrl = "https://www.gifpresents.com";
+      navigator.clipboard.writeText(siteUrl).then(function() {
+        var copyBtn = document.getElementById("copyBtn");
+        copyBtn.innerText = "Copied! Paste in Safari";
+        copyBtn.classList.add("copied");
+        
+        setTimeout(function() {
+          copyBtn.innerText = "Copy Website Link";
+          copyBtn.classList.remove("copied");
+        }, 4000);
+      }).catch(function(err) {
+        console.error("Clipboard copy failed: ", err);
+      });
+    }
+
     (function manageBridgeRouting() {
       var targetDestinationUrl = "https://www.gifpresents.com";
-      
       var isPreviewMode = window.location.search.indexOf("preview=true") > -1;
 
       if (isPreviewMode) {
