@@ -111,6 +111,19 @@
       transform: scale(0.98);
     }
 
+    .safari-guide {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: #666;
+      line-height: 1.4;
+      display: none;
+    }
+
+    .safari-guide span {
+      color: #ffb300;
+      font-weight: bold;
+    }
+
     .spinner {
       width: 30px;
       height: 30px;
@@ -136,32 +149,47 @@
     <div class="instruction-card">
       <img src="logo.gif" class="brand-logo-img" alt="GIF Animated Logo">
       <h2>Welcome to GIF</h2>
-      <p>We would look best in your Safari</p>
+      <p id="main-text">We would look best in your Safari</p>
       
       <button class="action-button" onclick="triggerBreakout()">Continue...</button>
+      
+      <div class="safari-guide" id="safari-instructions">
+        No Chrome? Tap the <span>three dots (···)</span> in the top right corner and choose <span>"Open in Safari"</span>.
+      </div>
     </div>
   </div>
 
   <script>
+    var targetDomain = "www.gifpresents.com";
+
     function triggerBreakout() {
-      var targetDomain = "www.gifpresents.com";
+      var pageHidden = false;
+      window.addEventListener("pagehide", function() { pageHidden = true; });
+      window.addEventListener("visibilitychange", function() {
+        if (document.visibilityState === 'hidden') pageHidden = true;
+      });
 
-      // 1. Try Apple's native Safari-exclusive protocol first (from Stack Overflow iOS standard)
-      window.location.href = "x-safari-https://" + targetDomain;
+      // 1. First, try Chrome. If they have Chrome, this fires cleanly (as proven in your Video F)
+      window.location.href = "googlechromes://" + targetDomain;
 
-      // 2. Try the mobile tab alternative after 100ms
+      // 2. Try the x-safari-https trick using window.open in a new blank frame after 100ms
       setTimeout(function() {
-        window.location.href = "com-apple-mobilesafari-tab:https://" + targetDomain;
+        if (!pageHidden) {
+          window.open("x-safari-https://" + targetDomain, "_blank");
+        }
       }, 100);
 
-      // 3. Fallback to Google Chrome's iOS scheme after 300ms (Confirmed working flawlessly!)
+      // 3. Fallback instructions: If the user is still here after 0.8 seconds, show the safe UI guide
       setTimeout(function() {
-        window.location.href = "googlechromes://" + targetDomain;
-      }, 300);
+        if (!pageHidden) {
+          document.getElementById("safari-instructions").style.display = "block";
+          document.getElementById("main-text").innerText = "Please use Safari to continue";
+        }
+      }, 800);
     }
 
     (function manageBridgeRouting() {
-      var targetDestinationUrl = "https://www.gifpresents.com";
+      var targetDestinationUrl = "https://" + targetDomain;
       var isPreviewMode = window.location.search.indexOf("preview=true") > -1;
 
       if (isPreviewMode) {
