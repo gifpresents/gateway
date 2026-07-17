@@ -180,7 +180,7 @@
       z-index: 100;
       flex-direction: column;
       align-items: flex-end;
-      pointer-events: none; /* FIX: Allows clicking right through the layout boundaries */
+      pointer-events: none;
     }
 
     .chevron-cluster-graphic {
@@ -210,6 +210,7 @@
       60%, 100% { opacity: 0.2; transform: translateX(0); }
     }
 
+    /* Reframed copy layout mapping to standard platform browsers universally */
     .prompt-label-text {
       font-family: "Kyok Medium", sans-serif;
       font-size: 0.85rem;
@@ -259,7 +260,7 @@
       <svg viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
       <svg viewBox="0 0 24 24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/></svg>
     </div>
-    <div class="prompt-label-text">Open in Safari</div>
+    <div class="prompt-label-text">Open in Browser</div>
   </div>
 
   <div id="in-app-banner">
@@ -295,8 +296,15 @@
 
     (function manageBridgeRouting() {
       var targetDestinationUrl = "https://www.gifpresents.com";
-      var isPreviewMode = window.location.search.indexOf("preview=true") > -1;
+      var currentUrlQuery = window.location.search || "";
+      
+      // Method 2 Safeguard: If URL context features breakout flags, bypass rules instantly
+      if (currentUrlQuery.indexOf("breakout=true") > -1) {
+        window.location.replace(targetDestinationUrl);
+        return;
+      }
 
+      var isPreviewMode = currentUrlQuery.indexOf("preview=true") > -1;
       if (isPreviewMode) {
         document.getElementById("loader-view").style.display = "none";
         document.getElementById("in-app-banner").style.display = "flex";
@@ -315,7 +323,14 @@
       if (isIOS && isInAppBrowser) {
         document.getElementById("loader-view").style.display = "none";
         document.getElementById("in-app-banner").style.display = "flex";
+        
+        // Dynamically append target execution parameter tags onto local DOM click interactions
+        var chromeLink = document.querySelector('a[href^="googlechromes://"]');
+        if (chromeLink) {
+          chromeLink.href = "googlechromes://www.gifpresents.com?breakout=true";
+        }
       } else {
+        // If they are inside an independent system browser app framework, clear them right to the source
         window.location.replace(targetDestinationUrl);
       }
     })();
