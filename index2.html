@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Video Library Portal</title>
+  <style>    
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #080808 !important; /* Changed from transparent to a deep charcoal to fit GitHub native presentation */
+      color: #e0e0e0;
+      font-family: "Kyok Light", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      min-height: 100%;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 12px 60px 12px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .quote-buffer-box {
+      margin-bottom: 25px;
+      background-color: #161616;
+      border-radius: 8px;
+      border: 1px solid #222;
+      padding: 24px 20px;
+      text-align: center;
+      user-select: none;
+    }
+
+    .quote-text {
+      font-size: 1.05rem;
+      font-style: italic;
+      color: #e0e0e0;
+      line-height: 1.5;
+      margin: 0 0 8px 0;
+      letter-spacing: 0.5px;
+    }
+
+    .quote-credit {
+      font-size: 0.8rem;
+      color: #7F7F7F;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+
+    .search-wrapper {
+      max-width: 800px;
+      margin: 0 auto 25px auto;
+      position: relative;
+      z-index: 100000;
+    }
+
+    .search-bar-container {
+      display: flex;
+      align-items: center;
+      background-color: #1e1e1e;
+      border: 1px solid #2d2d2d;
+      border-radius: 30px;
+      padding: 6px 18px;
+      position: relative;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-bar-container:focus-within {
+      border-color: #ffb300;
+      box-shadow: 0 0 12px rgba(255, 179, 0, 0.2);
+    }
+
+    .search-input {
+      width: 100%;
+      background: none;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-size: 1rem;
+      padding: 8px 0;
+      padding-right: 30px; 
+    }
+
+    .search-icon {
+      color: #ffb300;
+      margin-right: 10px;
+      font-size: 1.2rem;
+      user-select: none;
+    }
+
+    .clear-search-btn {
+      position: absolute;
+      right: 18px;
+      color: #7f7f7f;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      display: none; 
+      transition: color 0.15s ease;
+    }
+    
+    .clear-search-btn:hover {
+      color: #ffb300;
+    }
+
+    .results-dropdown {
+      position: absolute;
+      top: 55px;
+      left: 0;
+      width: 100%;
+      background-color: rgba(22, 22, 22, 0.95) !important; 
+      backdrop-filter: blur(10px); 
+      -webkit-backdrop-filter: blur(10px); 
+      border: 1px solid #2d2d2d;
+      border-radius: 8px;
+      max-height: 500px;
+      overflow-y: auto;
+      z-index: 100001;
+      display: none;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+    }
+
+    .result-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background-color 0.2s;
+    }
+
+    .result-item:last-child { border-bottom: none; }
+    .result-item:hover { background-color: rgba(255, 255, 255, 0.08); }
+
+    .result-thumb {
+      width: 70px;
+      aspect-ratio: 16/9;
+      background-color: #000;
+      border-radius: 4px;
+      object-fit: cover;
+      margin-top: 2px;
+    }
+
+    .result-info {
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    .result-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .result-title {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-grow: 1;
+    }
+
+    .result-category {
+      font-size: 0.72rem;
+      color: #ffb300;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .status-text {
+      padding: 16px;
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .search-overlay-dimmer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5); 
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .search-overlay-dimmer.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .categories-display-grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: 20px;
+      width: 100%;
+      transition: all 0.5s ease-in-out;
+    }
+    
+    .category-section {
+      position: relative; 
+      background-color: transparent !important;
+      border-radius: 8px;
+      border: 1px solid #222;
+      overflow: hidden;
+      width: 100%;
+      box-sizing: border-box;
+      order: 2; 
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), order 0s;
+    }
+
+    .category-section.expanded {
+      grid-column: 1 / -1;
+      order: 1 !important; 
+    }
+
+    .scroll-offset-anchor {
+      position: absolute;
+      top: -120px; 
+      left: 0;
+      width: 1px;
+      height: 1px;
+      visibility: hidden;
+      display: block;
+    }
+
+    .card-bg-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover; 
+      opacity: 0;
+      z-index: 1;
+      transition: opacity 0.8s ease-in-out, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .card-bg-img.active {
+      opacity: 1;
+    }
+
+    .card-dimming-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.52); 
+      z-index: 2;
+      transition: background 0.3s ease;
+    }
+
+    .category-header:hover .card-dimming-overlay {
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .category-header:hover .card-bg-img {
+      transform: scale(1.03);
+    }
+
+    .category-section.expanded .card-dimming-overlay,
+    .category-section.expanded .category-header:hover .card-dimming-overlay {
+      background: rgba(0, 0, 0, 0.7) !important;
+    }
+
+    .category-section.expanded .category-header:hover .card-bg-img {
+      transform: scale(1.0) !important;
+    }
+
+    .category-header {
+      position: relative;
+      aspect-ratio: 16 / 9; 
+      display: flex;
+      flex-direction: column;
+      justify-content: center; 
+      align-items: center;      
+      text-align: center;
+      padding: 24px;
+      background-color: #161616;
+      cursor: pointer;
+      user-select: none;
+      z-index: 3;
+      box-sizing: border-box;
+    }
+
+    .category-section.expanded .category-header {
+      aspect-ratio: auto;
+      padding: 30px 24px;
+      border-bottom: 1px solid #222;
+    }
+
+    .header-text-layer {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      pointer-events: none;
+      width: 100%;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .category-header:hover .header-text-layer {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+
+    .category-section.expanded .category-header:hover .header-text-layer {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .category-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0;
+      color: #e0e0e0;
+      text-transform: capitalize; 
+      letter-spacing: 1.5px;
+    }
+    
+    .category-section.expanded .category-title {
+      color: #ffb300;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+    }
+
+    @keyframes breathingIconEffect {
+      0% { transform: scale(0.95); opacity: 0.7; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.7; }
+    }
+
+    .toggle-icon {
+      display: none; 
+      color: #ffb300;
+      font-weight: 400;
+      line-height: 1;
+      animation: breathingIconEffect 3s infinite ease-in-out;
+    }
+
+    .category-section.expanded .toggle-icon {
+      display: inline-block;
+      font-size: 1.3rem;
+    }
+
+    .bottom-close-ribbon-bar {
+      width: 100%;
+      background-color: #1a1a1a;
+      border-top: 1px solid #2d2d2d;
+      color: #ffb300;
+      padding: 16px 24px;
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      user-select: none;
+      box-sizing: border-box;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .bottom-close-ribbon-bar:hover {
+      background-color: #ffb300;
+      color: #121212;
+    }
+    
+    .category-content {
+      max-height: 0px;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      clear: both;
+    }
+    
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      padding: 18px;
+    }
+    
+    .video-card {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #2d2d2d;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .video-card:hover {
+      transform: translateY(-4px);
+      border-color: #ffb300;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    }
+    
+    .thumbnail-container {
+      width: 100%;
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background-color: #262626;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    
+    .thumbnail-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .video-name-container {
+      padding: 12px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(to bottom, #1e1e1e, #181818);
+    }
+
+    .video-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    
+    .video-name {
+      font-size: 0.82rem;
+      font-weight: 500;
+      line-height: 1.4;
+      color: #7F7F7F;
+      display: block;
+      overflow: visible;
+      word-wrap: break-word;
+      cursor: pointer;
+      flex-grow: 1;
+    }
+
+    .details-toggle-btn {
+      background: none;
+      border: none;
+      color: #ffb300;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      user-select: none;
+      transition: transform 0.2s ease;
+      margin-top: -2px;
+    }
+    
+    .details-toggle-btn.active {
+      transform: rotate(45deg);
+      color: #e0e0e0;
+    }
+
+    .extended-details-box {
+      max-height: 0px;
+      overflow: hidden;
+      transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-top 0.3s;
+      font-size: 0.75rem;
+      color: #aaa;
+      line-height: 1.4;
+      border-top: 0px solid transparent;
+    }
+    
+    .extended-details-box.open {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid #2d2d2d;
+    }
+    
+    #fullscreen-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000000;
+      z-index: -99999;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    #fullscreen-container:fullscreen {
+      z-index: 2147483647;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    #fullscreen-container:-webkit-full-screen { z-index: 2147483647; opacity: 1; pointer-events: auto; }
+    #fullscreen-container:-ms-fullscreen { z-index: 2147483647; opacity: 1; pointer-events: auto; }
+    
+    #fullscreen-player {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .fullscreen-close-btn {
+      position: absolute;
+      bottom: 12px; 
+      right: 12px;  
+      z-index: 2147483647;
+      background-color: rgba(255, 179, 0, 0.95);
+      color: #121212;
+      border: none;
+      width: 38px;
+      height: 38px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .fullscreen-close-btn:hover {
+      background-color: #ffa000;
+      transform: scale(1.1);
+    }
+    
+    @media (min-width: 600px) {
+      .container { padding: 30px 24px; }
+      .categories-display-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+      .video-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+      .video-name { font-size: 0.9rem; }
+      .extended-details-box { font-size: 0.8rem; }
+    }
+
+    @media (min-width: 900px) {
+      .categories-display-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <a id="embed-top" href="#" style="position:absolute; top:0; left:0; width:1px; height:1px; opacity:0; pointer-events:none;" tabIndex="-1"></a>
+
+  <div class="search-overlay-dimmer" id="searchDimmer" onclick="closeDropdownOutside()"></div>
+
+  <div class="container">
+    <div id="categories-root"></div>
+  </div>
+
+  <div id="fullscreen-container">
+    <button class="fullscreen-close-btn" onclick="exitManualFullscreen()">✕</button>
+    <!-- Configured with exact allow policies ensuring native app container execution -->
+    <iframe id="fullscreen-player" src="" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+  </div>
+
+  <script>
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+
+    window.addEventListener('beforeunload', function() {
+      window.scrollTo(0, 0);
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+      window.location.hash = 'embed-top';
+      var topAnchor = document.getElementById('embed-top');
+      if (topAnchor) {
+        topAnchor.focus({preventScroll: false});
+      }
+    });
+
+    var rawDbData = { categories: [], videos: {} };
+    var localSearchDatabase = [];
+
+    // Decoupled dynamic compilation handling local JSON routing definitions natively
+    async function loadPortfolioDatabase() {
+      try {
+        const response = await fetch('data.json');
+        rawDbData = await response.json();
+        renderLayoutGrid();
+      } catch (err) {
+        console.error("Critical: Async portfolio mapping failed: ", err);
+      }
+    }
+    
+    function initializeSearchDatabase() {
+      localSearchDatabase = [];
+      var categories = rawDbData.categories || [];
+      var categorizedVideos = rawDbData.videos || {};
+      
+      for (var j = 0; j < categories.length; j++) {
+        var catName = categories[j];
+        var videos = categorizedVideos[catName] || [];
+        for (var i = 0; i < videos.length; i++) {
+          var vid = videos[i];
+          localSearchDatabase.push({
+            category: catName,
+            name: vid.name,
+            desc: vid.desc || "",
+            embedUrl: vid.embedUrl,
+            thumb: vid.thumb
+          });
+        }
+      }
+    }
+
+    function shuffleArray(array) {
+      for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        var array[i] = array[j];
+        array[j] = temp;
+      }
+      return array;
+    }
+
+    function renderLayoutGrid() {
+      window.scrollTo(0, 0);
+
+      var categories = rawDbData.categories || [];
+      var categorizedVideos = rawDbData.videos || {};
+      var rootEl = document.getElementById('categories-root');
+      rootEl.innerHTML = ''; // Reset layout space
+      
+      var quoteBox = document.createElement('div');
+      quoteBox.className = 'quote-buffer-box';
+      quoteBox.innerHTML = '<p class="quote-text">"Life beats down and crushes the soul... and art reminds you that you have one."</p>' +
+                           '<p class="quote-credit">— Stella Adler</p>';
+      rootEl.appendChild(quoteBox);
+
+      var searchWrapper = document.createElement('div');
+      searchWrapper.className = 'search-wrapper';
+      searchWrapper.id = 'searchWrapperBlock';
+      searchWrapper.innerHTML = `
+        <div class="search-bar-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="videoSearchInput" placeholder="Search Videos..." oninput="executeLiveSearch()" onfocus="handleSearchFocus()">
+          <span class="clear-search-btn" id="clearSearchBtn" onclick="clearSearchInput()">✕</span>
+        </div>
+        <div class="results-dropdown" id="resultsDropdown"></div>
+      `;
+      rootEl.appendChild(searchWrapper);
+
+      var masterGridContainer = document.createElement('div');
+      masterGridContainer.className = 'categories-display-grid';
+      rootEl.appendChild(masterGridContainer);
+      
+      for (var j = 0; j < categories.length; j++) {
+        var catName = categories[j];
+        var originalVideosList = categorizedVideos[catName];
+        if (!originalVideosList || originalVideosList.length === 0) continue;
+        
+        var videos;
+        if (catName === "Vertical Series") {
+          videos = [...originalVideosList];
+        } else {
+          videos = shuffleArray(([...originalVideosList]));
+        }
+        var section = document.createElement('div');
+        section.className = 'category-section'; 
+        
+        var offsetAnchor = document.createElement('span');
+        offsetAnchor.className = 'scroll-offset-anchor';
+        section.appendChild(offsetAnchor);
+        
+        var header = document.createElement('div');
+        header.className = 'category-header';
+        header.onclick = (function(targetSection) {
+          return function() { toggleCategory(targetSection); };
+        })(section);
+        
+        var slidesHTML = '';
+        var uniqueThumbs = [];
+        for (var v = 0; v < videos.length; v++) {
+          var thumbUrl = videos[v].thumb;
+          if (thumbUrl && !uniqueThumbs.includes(thumbUrl)) {
+            uniqueThumbs.push(thumbUrl);
+            var activeClass = (uniqueThumbs.length === 1) ? 'active' : '';
+            slidesHTML += '<img class="card-bg-img ' + activeClass + '" src="' + thumbUrl + '" loading="lazy">';
+          }
+        }
+
+        header.innerHTML = slidesHTML +
+          '<div class="card-dimming-overlay"></div>' +
+          '<div class="header-text-layer">' +
+            '<h2 class="category-title">' + catName + '</h2>' +
+            '<div class="toggle-icon">✕</div>' +
+          '</div>';
+        section.appendChild(header);
+        
+        var contentWrapper = document.createElement('div');
+        contentWrapper.className = 'category-content';
+        
+        var grid = document.createElement('div');
+        grid.className = 'video-grid';
+        
+        for (var i = 0; i < videos.length; i++) {
+          (function(video) {
+            var safeName = video.name ? String(video.name).trim() : "Untitled-Video";
+            var descriptionData = video.desc ? String(video.desc).trim() : '';
+            
+            var card = document.createElement('div');
+            card.className = 'video-card';
+            
+            var innerHTML = '<div class="thumbnail-container" onclick="playInFullscreen(\'' + video.embedUrl + '\')">' +
+                               '<img src="' + (video.thumb || '') + '" class="thumbnail-img" loading="lazy">' +
+                             '</div>' +
+                             '<div class="video-name-container">' +
+                               '<div class="video-meta-row">' +
+                                 '<div class="video-name" onclick="playInFullscreen(\'' + video.embedUrl + '\')">' + safeName + '</div>';
+            
+            if (descriptionData !== "") {
+              innerHTML += '<button class="details-toggle-btn" onclick="toggleDetailsBox(event, this)">+</button>';
+            }
+            
+            innerHTML += '</div>';
+            
+            if (descriptionData !== "") {
+              innerHTML += '<div class="extended-details-box">' + descriptionData + '</div>';
+            }
+            
+            innerHTML += '</div>';
+            card.innerHTML = innerHTML;
+            grid.appendChild(card);
+          })(videos[i]);
+        }
+        
+        contentWrapper.appendChild(grid);
+
+        var ribbonCloseBar = document.createElement('div');
+        ribbonCloseBar.className = 'bottom-close-ribbon-bar';
+        ribbonCloseBar.innerHTML = 'Return to Categories ✕';
+        ribbonCloseBar.onclick = (function(targetSection) {
+          return function(event) {
+            event.stopPropagation();
+            toggleCategory(targetSection);
+          };
+        })(section);
+        contentWrapper.appendChild(ribbonCloseBar);
+
+        section.appendChild(contentWrapper);
+        masterGridContainer.appendChild(section);
+
+        if (uniqueThumbs.length > 0) {
+          setupCardSlideshow(section);
+        }
+      }
+      
+      initializeSearchDatabase();
+
+      document.addEventListener('click', function(event) {
+        var searchBlock = document.getElementById('searchWrapperBlock');
+        if (searchBlock && !searchBlock.contains(event.target)) {
+          closeDropdownOutside();
+        }
+      });
+    }
+
+    function setupCardSlideshow(cardSectionElement) {
+      var images = cardSectionElement.querySelectorAll('.card-bg-img');
+      if(images.length <= 1) return;
+      var currentIndex = 0;
+      setInterval(function() {
+        if(!cardSectionElement.classList.contains('expanded')) {
+          images[currentIndex].classList.remove('active');
+          currentIndex = (currentIndex + 1) % images.length;
+          images[currentIndex].classList.add('active');
+        }
+      }, 3000);
+    }
+
+    function executeLiveSearch() {
+      const inputEl = document.getElementById('videoSearchInput');
+      const clearBtn = document.getElementById('clearSearchBtn');
+      const dropdown = document.getElementById('resultsDropdown');
+      const dimmer = document.getElementById('searchDimmer');
+      
+      const queryText = inputEl.value.trim().toLowerCase();
+      
+      if (!queryText) {
+        clearBtn.style.display = 'none';
+        dropdown.style.display = 'none';
+        dimmer.classList.remove('active');
+        return;
+      }
+
+      clearBtn.style.display = 'block'; 
+
+      const queryWords = queryText.split(/\s+/);
+
+      const matches = localSearchDatabase.filter(item => {
+        const targetString = (item.name + " " + item.desc + " " + item.category).toLowerCase();
+        return queryWords.every(word => targetString.includes(word));
+      });
+
+      dropdown.innerHTML = '';
+      if (matches.length === 0) {
+        dropdown.innerHTML = '<div class="status-text">No matching videos found</div>';
+      } else {
+        matches.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'result-item';
+          row.onclick = () => {
+            closeDropdownOutside();
+            playInFullscreen(item.embedUrl);
+          };
+          
+          var cleanSearchTitle = item.name ? String(item.name).trim() : "Untitled-Video";
+          var descriptionData = item.desc ? String(item.desc).trim() : '';
+
+          var innerHTML = '<img class="result-thumb" src="' + (item.thumb || '') + '">' +
+            '<div class="result-info">' +
+              '<div class="result-meta-row">' +
+                '<div class="result-title">' + cleanSearchTitle + '</div>';
+
+          if (descriptionData !== "") {
+            innerHTML += '<button class="details-toggle-btn" onclick="toggleDetailsBox(event, this)">+</button>';
+          }
+
+          innerHTML += '</div>' +
+            '<div class="result-category">' + item.category + '</div>';
+
+          if (descriptionData !== "") {
+            innerHTML += '<div class="extended-details-box">' + descriptionData + '</div>';
+          }
+
+          innerHTML += '</div>';
+          row.innerHTML = innerHTML;
+          dropdown.appendChild(row);
+        });
+      }
+      dropdown.style.display = 'block';
+      dimmer.classList.add('active'); 
+    }
+
+    function handleSearchFocus() {
+      const inputEl = document.getElementById('videoSearchInput');
+      const dropdown = document.getElementById('resultsDropdown');
+      const dimmer = document.getElementById('searchDimmer');
+      
+      if (inputEl.value.trim() !== "") {
+        dropdown.style.display = 'block';
+        dimmer.classList.add('active');
+      }
+    }
+
+    function closeDropdownOutside() {
+      const dropdown = document.getElementById('resultsDropdown');
+      const dimmer = document.getElementById('searchDimmer');
+      if (dropdown) dropdown.style.display = 'none';
+      if (dimmer) dimmer.classList.remove('active');
+    }
+
+    function clearSearchInput() {
+      const inputEl = document.getElementById('videoSearchInput');
+      inputEl.value = '';
+      executeLiveSearch(); 
+    }
+
+    function toggleCategory(sectionElement) {
+      var content = sectionElement.querySelector('.category-content');
+      var isAlreadyExpanded = sectionElement.classList.contains('expanded');
+      var scrollTarget = sectionElement.querySelector('.scroll-offset-anchor');
+      var allSections = document.querySelectorAll('.category-section');
+      
+      if (isAlreadyExpanded) {
+        content.style.maxHeight = '0px';
+        sectionElement.classList.remove('expanded');
+        
+        if (scrollTarget) {
+          setTimeout(function() {
+            scrollTarget.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+              inline: 'nearest'
+            });
+          }, 100);
+        }
+      } else {
+        allSections.forEach(function(sec) {
+          if (sec !== sectionElement) {
+            var otherContent = sec.querySelector('.category-content');
+            if (otherContent) otherContent.style.maxHeight = '0px';
+            sec.classList.remove('expanded');
+          }
+        });
+        
+        sectionElement.classList.add('expanded');
+        content.style.maxHeight = content.scrollHeight + 'px';
+        
+        setTimeout(function() {
+          if (sectionElement.classList.contains('expanded')) {
+            content.style.maxHeight = 'none';
+          }
+          
+          if (scrollTarget) {
+            scrollTarget.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+              inline: 'nearest'
+            });
+          }
+        }, 400); 
+      }
+    }
+
+    function toggleDetailsBox(event, buttonElement) {
+      event.stopPropagation(); 
+      
+      var metaRow = buttonElement.parentElement;
+      var containerBlock = metaRow.parentElement;
+      var detailsBox = containerBlock.querySelector('.extended-details-box');
+      
+      if (!detailsBox) return;
+      
+      var isClosed = !buttonElement.classList.contains('active');
+      
+      if (isClosed) {
+        buttonElement.classList.add('active');
+        detailsBox.classList.add('open');
+        detailsBox.style.maxHeight = detailsBox.scrollHeight + 'px';
+      } else {
+        buttonElement.classList.remove('active');
+        detailsBox.style.maxHeight = '0px';
+        
+        setTimeout(function() {
+          detailsBox.classList.remove('open');
+        }, 300);
+      }
+    }
+
+    function playInFullscreen(url) {
+      if (!url) return;
+      var fullScreenPlayUrl = url + (url.indexOf('?') > -1 ? '&' : '?') + 'autoplay=1&fs=1';
+      var container = document.getElementById('fullscreen-container');
+      var player = document.getElementById('fullscreen-player');
+      
+      player.src = fullScreenPlayUrl;
+      
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+      } else if (container.msRequestFullscreen) {
+        container.msRequestFullscreen();
+      }
+    }
+
+    function exitManualFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(function(){});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+    }
+
+    function setupFullscreenExitListener() {
+      var exitHandler = function() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+          document.getElementById('fullscreen-player').src = "";
+        }
+      };
+      document.addEventListener('fullscreenchange', exitHandler);
+      document.addEventListener('webkitfullscreenchange', exitHandler);
+      document.addEventListener('MSFullscreenChange', exitHandler);
+    }
+    
+    setupFullscreenExitListener();
+    
+    // Boot up file mapping layout arrays on page initializations
+    window.onload = loadPortfolioDatabase;
+  </script>
+</body>
+</html>
