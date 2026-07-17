@@ -171,6 +171,7 @@
       color: #ffb300;
     }
 
+    /* Fixed Layout Config with strict Click-Through capability */
     .safari-prompt-element {
       display: none;
       position: absolute;
@@ -179,7 +180,7 @@
       z-index: 100;
       flex-direction: column;
       align-items: flex-end;
-      pointer-events: none;
+      pointer-events: none; /* FIX: Allows clicking right through the layout boundaries */
     }
 
     .chevron-cluster-graphic {
@@ -187,6 +188,7 @@
       transform: rotate(-45deg);
       margin-bottom: 12px;
       padding-right: 16px;
+      pointer-events: none;
     }
 
     .chevron-cluster-graphic svg {
@@ -195,6 +197,7 @@
       fill: #ffb300;
       opacity: 0.2;
       animation: cascadePulse 1.2s infinite linear;
+      pointer-events: none;
     }
 
     .chevron-cluster-graphic svg:nth-child(1) { animation-delay: 0.0s; }
@@ -219,6 +222,7 @@
       letter-spacing: 1px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.6);
       animation: slideInFade 0.3s ease-out forwards;
+      pointer-events: none;
     }
 
     @keyframes slideInFade {
@@ -280,10 +284,8 @@
 
   <script>
     function triggerSafariCue() {
-      // 1. Display the chevron visual guide
       document.getElementById("safari-cue").style.display = "flex";
       
-      // 2. Fix: Hard refresh the GIF source string to force iOS WKWebView to unfreeze animation frames
       var gifLogo = document.getElementById("logo-gif");
       if (gifLogo) {
         var currentSrc = gifLogo.src.split('?')[0];
