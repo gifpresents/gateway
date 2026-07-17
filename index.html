@@ -56,15 +56,9 @@
     }
 
     @keyframes moveGradient {
-      0% {
-        background-position: 0% 0%;
-      }
-      50% {
-        background-position: 100% 100%;
-      }
-      100% {
-        background-position: 0% 100%;
-      }
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 100%; }
     }
 
     #in-app-banner {
@@ -266,7 +260,7 @@
 
   <div id="in-app-banner">
     <div class="instruction-card">
-      <img src="logo.gif" class="brand-logo-img" alt="GIF Animated Logo">
+      <img id="logo-gif" src="logo.gif" class="brand-logo-img" alt="GIF Animated Logo">
       <h2>Welcome to GIF</h2>
       <p class="tagline-quote">"If you wear trousers, give us a browser!"</p>
       
@@ -286,7 +280,15 @@
 
   <script>
     function triggerSafariCue() {
+      // 1. Display the chevron visual guide
       document.getElementById("safari-cue").style.display = "flex";
+      
+      // 2. Fix: Hard refresh the GIF source string to force iOS WKWebView to unfreeze animation frames
+      var gifLogo = document.getElementById("logo-gif");
+      if (gifLogo) {
+        var currentSrc = gifLogo.src.split('?')[0];
+        gifLogo.src = currentSrc + '?t=' + new Date().getTime();
+      }
     }
 
     (function manageBridgeRouting() {
