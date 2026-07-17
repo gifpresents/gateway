@@ -1,0 +1,24 @@
+{
+  "categories": [
+    "Vertical Series",
+    "Short Films"
+  ],
+  "videos": {
+    "Vertical Series": [
+      {
+        "name": "Cinematic Test One",
+        "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ?modestbranding=1&rel=0",
+        "thumb": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "desc": "Testing out the vertical framework rendering inside the sandbox environment."
+      }
+    ],
+    "Short Films": [
+      {
+        "name": "Cinematic Test Two",
+        "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ?modestbranding=1&rel=0",
+        "thumb": "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        "desc": "Testing out the horizontal slideshow element engine parameters."
+      }
+    ]
+  }
+}
