@@ -9,7 +9,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      background-color: #080808 !important; /* Changed from transparent to a deep charcoal to fit GitHub native presentation */
+      background-color: #080808 !important;
       color: #e0e0e0;
       font-family: "Kyok Light", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       min-height: 100%;
@@ -24,6 +24,7 @@
       position: relative;
     }
 
+    /* Cinematic Quote Top Buffer Element Style */
     .quote-buffer-box {
       margin-bottom: 25px;
       background-color: #161616;
@@ -51,6 +52,7 @@
       margin: 0;
     }
 
+    /* Integrated Search Bar Workspace Area Styles */
     .search-wrapper {
       max-width: 800px;
       margin: 0 auto 25px auto;
@@ -202,6 +204,7 @@
       pointer-events: auto;
     }
 
+    /* MASTER ADAPTIVE ROOT LAYOUT GRID */
     .categories-display-grid {
       display: grid;
       grid-template-columns: repeat(1, 1fr);
@@ -237,6 +240,7 @@
       display: block;
     }
 
+    /* Real vibrant colors on background slides */
     .card-bg-img {
       position: absolute;
       top: 0;
@@ -253,6 +257,7 @@
       opacity: 1;
     }
 
+    /* Vignette protection cover sheet guarantees absolute text legibility */
     .card-dimming-overlay {
       position: absolute;
       top: 0;
@@ -272,6 +277,7 @@
       transform: scale(1.03);
     }
 
+    /* REFINEMENT FIX: Locks background dark and stops image scaling shifts when expanded */
     .category-section.expanded .card-dimming-overlay,
     .category-section.expanded .category-header:hover .card-dimming-overlay {
       background: rgba(0, 0, 0, 0.7) !important;
@@ -316,11 +322,13 @@
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
+    /* Softly fades text container away on idle box hovers to display full colors */
     .category-header:hover .header-text-layer {
       opacity: 0;
       transform: scale(0.97);
     }
 
+    /* Force visibility to snap locked if active/expanded */
     .category-section.expanded .category-header:hover .header-text-layer {
       opacity: 1 !important;
       transform: none !important;
@@ -340,12 +348,14 @@
       text-shadow: 0 2px 8px rgba(0,0,0,0.9);
     }
 
+    /* Breathing loop keyframe settings */
     @keyframes breathingIconEffect {
       0% { transform: scale(0.95); opacity: 0.7; }
       50% { transform: scale(1.15); opacity: 1; }
       100% { transform: scale(0.95); opacity: 0.7; }
     }
 
+    /* Hides toggle wrapper layout node entirely inside idle grid boxes */
     .toggle-icon {
       display: none; 
       color: #ffb300;
@@ -354,11 +364,13 @@
       animation: breathingIconEffect 3s infinite ease-in-out;
     }
 
+    /* RESTORE HOOKS: Re-emerges only when parent card enters expanded layout state */
     .category-section.expanded .toggle-icon {
       display: inline-block;
       font-size: 1.3rem;
     }
 
+    /* Full-Width bottom ribbon close bar panel */
     .bottom-close-ribbon-bar {
       width: 100%;
       background-color: #1a1a1a;
@@ -569,7 +581,6 @@
 
   <div id="fullscreen-container">
     <button class="fullscreen-close-btn" onclick="exitManualFullscreen()">✕</button>
-    <!-- Configured with exact allow policies ensuring native app container execution -->
     <iframe id="fullscreen-player" src="" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
   </div>
 
@@ -593,7 +604,7 @@
     var rawDbData = { categories: [], videos: {} };
     var localSearchDatabase = [];
 
-    // Decoupled dynamic compilation handling local JSON routing definitions natively
+    // Native asynchronous local data generator loop
     async function loadPortfolioDatabase() {
       try {
         const response = await fetch('data.json');
@@ -637,11 +648,14 @@
 
     function renderLayoutGrid() {
       window.scrollTo(0, 0);
+      if (window.parent) {
+        try { window.parent.scrollTo(0, 0); } catch(e){}
+      }
 
       var categories = rawDbData.categories || [];
       var categorizedVideos = rawDbData.videos || {};
       var rootEl = document.getElementById('categories-root');
-      rootEl.innerHTML = ''; // Reset layout space
+      rootEl.innerHTML = '';
       
       var quoteBox = document.createElement('div');
       quoteBox.className = 'quote-buffer-box';
@@ -990,7 +1004,7 @@
     
     setupFullscreenExitListener();
     
-    // Boot up file mapping layout arrays on page initializations
+    // Boot script mapping loop sequence
     window.onload = loadPortfolioDatabase;
   </script>
 </body>
