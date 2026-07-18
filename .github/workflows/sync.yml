@@ -2,10 +2,12 @@ name: Automated Video Library Sync
 
 on:
   schedule:
-    # Runs automatically every day at midnight UTC
     - cron: '0 0 * * *'
   workflow_dispatch:
-    # Allows you to click a button to force-sync manually at any time
+
+# Explicitly grants the action rights to push the data.json file update
+permissions:
+  contents: write
 
 jobs:
   sync:
@@ -18,7 +20,7 @@ jobs:
     - name: Setup Node.js Environment
       uses: actions/setup-node@v4
       with:
-        node-node: '20'
+        node-version: '24' # Updated to the latest modern engine standard
 
     - name: Install Runtime Dependencies
       run: npm install axios
