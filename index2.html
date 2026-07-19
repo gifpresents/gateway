@@ -580,9 +580,16 @@
   </div>
 
   <div id="fullscreen-container">
-    <button class="fullscreen-close-btn" onclick="exitManualFullscreen()">✕</button>
-    <iframe id="fullscreen-player" src="" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
-  </div>
+  <button class="fullscreen-close-btn" onclick="exitManualFullscreen()">✕</button>
+  <!-- ADDED webkit-playsinline, playsinline, and explicit permission parameters below -->
+  <iframe id="fullscreen-player" 
+          src="" 
+          allow="autoplay; encrypted-media; fullscreen; picture-in-picture" 
+          playsinline="1" 
+          webkit-playsinline="1" 
+          allowfullscreen>
+  </iframe>
+</div>
 
   <script>
     if ('scrollRestoration' in history) {
