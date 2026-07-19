@@ -2,13 +2,13 @@ const fs = require('fs');
 const axios = require('axios');
 
 // =========================================================================
-// CONFIGURATION ENGINE (SECURED VIA GITHUB SECRETS)
+// CONFIGURATION ENGINE (SECURED VIA GITHUB SECRETS OAUTH)
 // =========================================================================
-const API_KEY = process.env.YOUTUBE_KEY; 
+const CLIENT_ID = process.env.YOUTUBE_CLIENT_ID;
+const CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET;
+const REFRESH_TOKEN = process.env.YOUTUBE_REFRESH_TOKEN;
 const CHANNEL_ID = 'UCqRFJN6QZ4t4qf3k7qxEFXA';
 
-// Replicating your "Playlist Order" sheet mapping rules
-// Fallback order mapping rules for explicit layout priorities
 const CUSTOM_ORDER_MAP = {
   "trailers": 1,
   "advertisements": 2,
@@ -28,18 +28,38 @@ const CUSTOM_ORDER_MAP = {
   "voiceovers": 16,
   "motion graphics": 17
 };
+
+// Helper function to dynamically grab a fresh Access Token using your Refresh Token
+async function getAccessToken() {
+  try {
+    const res = await axios.post('https://oauth2.googleapis.com/token', {
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      refresh_token: REFRESH_TOKEN,
+      grant_type: 'refresh_token'
+    });
+    return res.data.access_token;
+  } catch (error) {
+    throw new Error("Failed to generate access token from credentials: " + (error.response ? JSON.stringify(error.response.data) : error.message));
+  }
+}
+
 async function fetchAllYouTubeData() {
   let videoData = {};
   let baseCategories = [];
   let uniquePlaylistNamesFound = [];
   let playlistPageToken = '';
 
-  console.log("Initializing dynamic YouTube engine synchronization loop...");
+  console.log("Initializing dynamic OAuth YouTube engine synchronization loop...");
 
   try {
+    const accessToken = await getAccessToken();
+    const authHeader = { headers: { Authorization: `Bearer ${accessToken}` } };
+
     do {
-      const playlistUrl = `https://www.googleapis.com/youtube/v3/playlists?part=snippet&channelId=${CHANNEL_ID}&maxResults=50&key=${API_KEY}&pageToken=${playlistPageToken}`;
-      const playlistRes = await axios.get(playlistUrl);
+      // Swapped public key param to secure authHeader payload to access unlisted collections
+      const playlistUrl = `https://www.googleapis.com/youtube/v3/playlists?part=snippet,status&channelId=${CHANNEL_ID}&maxResults=50&pageToken=${playlistPageToken}`;
+      const playlistRes = await axios.get(playlistUrl, authHeader);
       
       if (!playlistRes.data.items || playlistRes.data.items.length === 0) break;
 
@@ -58,8 +78,8 @@ async function fetchAllYouTubeData() {
 
         let videoPageToken = '';
         do {
-          const videoUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${API_KEY}&pageToken=${videoPageToken}`;
-          const videoRes = await axios.get(videoUrl);
+          const videoUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&pageToken=${videoPageToken}`;
+          const videoRes = await axios.get(videoUrl, authHeader);
 
           if (videoRes.data.items) {
             for (let item of videoRes.data.items) {
@@ -92,7 +112,6 @@ async function fetchAllYouTubeData() {
       playlistPageToken = playlistRes.data.nextPageToken || '';
     } while (playlistPageToken);
 
-    // Sorting categories based on your custom configuration rankings
     const sortedCategoriesArray = baseCategories.sort((a, b) => {
       const keyA = a.toString().toLowerCase().trim();
       const keyB = b.toString().toLowerCase().trim();
@@ -106,9 +125,8 @@ async function fetchAllYouTubeData() {
       videos: videoData
     };
 
-    // Save output files straight to your local directory block repository root folder
     fs.writeFileSync('data.json', JSON.stringify(outputData, null, 2));
-    console.log("Success! Synchronization completed cleanly. data.json created.");
+    console.log("Success! Secure synchronization completed cleanly. data.json populated.");
 
   } catch (error) {
     console.error("Data Sync Pipeline Failed: ", error.message);
