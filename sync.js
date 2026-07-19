@@ -90,7 +90,8 @@ async function fetchAllYouTubeData() {
               let videoDesc = item.snippet.description ? item.snippet.description.trim() : '';
               videoDesc = videoDesc.replace(/[\r\n]+/g, ' • ');
 
-              const embedUrl = `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0`;
+              // Change this line (around line 68):
+              const embedUrl = `https://www.youtube.com/embed/${videoId}?modestbranding=1&rel=0&playsinline=1`;
               let thumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
               if (item.snippet.thumbnails && item.snippet.thumbnails.maxres) {
