@@ -57,8 +57,9 @@ async function fetchAllYouTubeData() {
     const authHeader = { headers: { Authorization: `Bearer ${accessToken}` } };
 
     do {
-      // Swapped public key param to secure authHeader payload to access unlisted collections
-      const playlistUrl = `https://www.googleapis.com/youtube/v3/playlists?part=snippet,status&channelId=${CHANNEL_ID}&maxResults=50&pageToken=${playlistPageToken}`;
+      // FIX: Changed channelId=${CHANNEL_ID} to mine=true
+      // This forces the API to look at the OAuth token's account library, revealing unlisted playlists!
+      const playlistUrl = `https://www.googleapis.com/youtube/v3/playlists?part=snippet,status&mine=true&maxResults=50&pageToken=${playlistPageToken}`;
       const playlistRes = await axios.get(playlistUrl, authHeader);
       
       if (!playlistRes.data.items || playlistRes.data.items.length === 0) break;
