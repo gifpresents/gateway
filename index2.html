@@ -972,21 +972,29 @@
     }
 
     function playInFullscreen(url) {
-      if (!url) return;
-      var fullScreenPlayUrl = url + (url.indexOf('?') > -1 ? '&' : '?') + 'autoplay=1&fs=1';
-      var container = document.getElementById('fullscreen-container');
-      var player = document.getElementById('fullscreen-player');
-      
-      player.src = fullScreenPlayUrl;
-      
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
-      } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-      } else if (container.msRequestFullscreen) {
-        container.msRequestFullscreen();
-      }
-    }
+  if (!url) return;
+  
+  var container = document.getElementById('fullscreen-container');
+  var player = document.getElementById('fullscreen-player');
+  
+  // 1. Force state reset first to prevent canvas layering freezes
+  player.src = ""; 
+  
+  // 2. Launch full screen mode to prepare the viewport canvas
+  if (container.requestFullscreen) {
+    container.requestFullscreen();
+  } else if (container.webkitRequestFullscreen) {
+    container.webkitRequestFullscreen();
+  } else if (container.msRequestFullscreen) {
+    container.msRequestFullscreen();
+  }
+  
+  // 3. Populate the source AFTER viewport allocation to kick off the video renderer cleanly
+  var fullScreenPlayUrl = url + (url.indexOf('?') > -1 ? '&' : '?') + 'autoplay=1&fs=1';
+  setTimeout(function() {
+    player.src = fullScreenPlayUrl;
+  }, 150); // Short 150ms buffer bypasses iOS Chrome execution blocks!
+}
 
     function exitManualFullscreen() {
       if (document.exitFullscreen) {
